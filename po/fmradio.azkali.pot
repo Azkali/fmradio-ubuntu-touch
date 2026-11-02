@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fmradio.azkali\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-23 15:38+0000\n"
+"POT-Creation-Date: 2026-11-02 18:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,66 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/Main.qml:39 fmradio.desktop.in.h:1
+#: ../qml/pages/HomePage.qml:365 fmradio.desktop.in.h:1
 msgid "FM Radio"
 msgstr ""
 
-#: ../qml/Main.qml:66
-msgid "<"
+#: ../qml/pages/SettingsPage.qml:40
+msgid "Audio Output"
 msgstr ""
 
-#: ../qml/Main.qml:80
-msgid ">"
+#: ../qml/pages/SettingsPage.qml:44
+msgid "Mono audio for weak signals"
 msgstr ""
 
-#: ../qml/Main.qml:94
-msgid "Start radio"
+#: ../qml/pages/SettingsPage.qml:45
+msgid "Reduces high-frequency multiplex static"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:58
+msgid "Tuning & Band"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:62
+msgid "Decode RDS radiotext"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:63
+msgid "Live station metadata & program info"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:75
+msgid "Region"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:92
+msgid "Select your region:"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:116
+msgid "Save"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:126
+msgid "Cancel"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:144
+msgid "Recordings"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:148
+msgid "Capture Quality"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:149
+msgid "WAV Lossless (48 kHz, 16-bit)"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:154
+msgid "Storage Location"
+msgstr ""
+
+#: ../qml/pages/SettingsPage.qml:174
+msgid "Radio Settings"
 msgstr ""

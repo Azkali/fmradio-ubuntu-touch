@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Azkali Manad <a.ffcc7@gmail.com>
+ * Copyright (C) 2026 Nima Fanniasl <nimafanniasl@proton.me>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,135 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import QtQuick 2.7
-import Lomiri.Components 1.3
-//import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
-
+import QtQuick 2.7
+import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.3
+import Lomiri.Components 1.3
 import MediatekRadio 1.0
 
 MainView {
-	id: root
-	objectName: 'mainView'
-	applicationName: 'fmradio.azkali'
-	automaticOrientation: false
+    id: root
 
-	width: units.gu(45)
-	height: units.gu(75)
+    objectName: 'mainView'
+    applicationName: 'fmradio.azkali'
 
-	Page {
-		anchors.fill: parent
+    PageStack {
+        id: mainStack
 
-		header: PageHeader {
-			id: header
-			title: i18n.tr('FM Radio')
-		}
+        Component.onCompleted: push(Qt.resolvedUrl("pages/HomePage.qml"))
+    }
 
-		GridLayout {
-			columns: 3
-
-			anchors {
-				top: header.bottom
-				margins: units.gu(2)
-				left: parent.left
-				right: parent.right
-				bottom: parent.bottom
-			}
-
-			Item {
-				height: units.gu(30)
-			}
-
-			Item {
-				height: units.gu(30)
-			}
-
-			Item {
-				height: units.gu(30)
-			}
-
-			Button {
-				text: i18n.tr('\<')
-				onClicked: {
-					MediatekRadio.seekDown()
-					frequency.text = MediatekRadio.getFrequency() / 100
-				}
-			}
-
-			Label {
-				id: frequency
-				font.pixelSize: units.gu(10)
-				text: MediatekRadio.getFrequency() / 100
-			}
-
-			Button {
-				text: i18n.tr('\>')
-				onClicked: {
-					MediatekRadio.seekUp()
-					frequency.text = MediatekRadio.getFrequency() / 100
-				}
-			}
-
-			Item {
-				Layout.fillHeight: true
-			}
-
-			Button {
-				id: startStopButton
-				Layout.alignment: Qt.AlignHCenter
-				text: i18n.tr('Start radio')
-				onClicked: if(!MediatekRadio.isRadioRunning()) {
-						text = MediatekRadio.startRadio(MediatekRadio.getFrequency())
-					} else {
-						text = MediatekRadio.stopRadio()
-					}
-			}
-
-/*			Item {
-				Layout.fillHeight: true
-			}
-*/
-
-		}
-
-		BottomEdge {
-			id: bottomEdge
-			width: units.gu(45)
-			height: units.gu(40.5)
-//			preloadContent: true
-
-			contentComponent: TextInput {
-				id: frequencyInput
-				font.pixelSize: units.gu(5)
-				inputMask: "990.9;_"
-				inputMethodHints: Qt.ImhFormattedNumbersOnly
-				text: MediatekRadio.getFrequency() / 100
-				onEditingFinished: {
-					MediatekRadio.tune(frequencyInput.text * 100)
-					frequency.text = MediatekRadio.getFrequency() / 100
-					bottomEdge.collapse()
-				}
-
-				Connections {
-					target: bottomEdge
-					onCommitCompleted: {
-						focus = true
-					}
-				}
-
-				Connections {
-					target: bottomEdge
-					onCollapseCompleted: {
-						focus = false
-					}
-				}
-
-
-			}
-
-		}
-
-	}
 }

@@ -1,5 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>Main.qml</file>
+        <file>pages/HomePage.qml</file>
+        <file>pages/SettingsPage.qml</file>
+        <file>components/SettingsRow.qml</file>
+        <file>components/SettingsSection.qml</file>
+        <file>components/PresetButton.qml</file>
+        <file>components/HapticButton.qml</file>
+        <file>components/RoundButtonBackground.qml</file>
     </qresource>
 </RCC>
