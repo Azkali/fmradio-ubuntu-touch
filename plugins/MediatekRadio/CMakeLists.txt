@@ -5,16 +5,19 @@ set(
     plugin.cpp
     MediatekRadio.cpp
     common.cpp
+    PulseAudio.cpp
 )
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse)
 
 add_library(${PLUGIN} MODULE ${SRC})
 set_target_properties(${PLUGIN} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PLUGIN})
-target_link_libraries(${PLUGIN} Qt5::Qml Qt5::Quick)
+target_link_libraries(${PLUGIN} Qt5::Qml Qt5::Quick PkgConfig::PULSE)
 
 execute_process(
     COMMAND dpkg-architecture -qDEB_HOST_MULTIARCH

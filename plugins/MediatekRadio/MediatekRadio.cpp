@@ -18,8 +18,6 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
-#include <QProcess>
-#include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QUrl>
 
@@ -42,53 +40,16 @@ static const int kRdsInterval = 100;
 static const int kDefaultFrequency = 10250;
 static const int kPresetCount = 4;
 
-// Run pactl with a C locale so its output can be parsed
-static QString pactl(const QStringList &args)
-{
-	QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-	env.insert("LC_ALL", "C");
-
-	QProcess process;
-	process.setProcessEnvironment(env);
-	process.start("/usr/bin/pactl", args);
-	process.waitForFinished();
-
-	return QString::fromUtf8(process.readAllStandardOutput()).trimmed();
-}
-
 // Node names differ between pulseaudio-modules-droid releases:
 //   Halium 9/10: source.droid / sink.droid
 //   Halium 11+:  source.primary_input / sink.primary_output
-static QString findNode(const QString &kind, const QStringList &candidates)
+static QString findNode(const QStringList &names, const QStringList &candidates)
 {
-	QStringList names;
-	for (const QString &line : pactl({"list", "short", kind}).split('\n'))
-		names << line.section('\t', 1, 1);
-
 	for (const QString &candidate : candidates)
 		if (names.contains(candidate))
 			return candidate;
 
 	return candidates.first();
-}
-
-// Node blocks start with an unindented "Sink #N" or "Source #N" line
-static QString activePort(const QString &kind, const QString &node)
-{
-	bool inNode = false;
-
-	for (const QString &line : pactl({"list", kind}).split('\n')) {
-		const QString field = line.trimmed();
-
-		if (!line.startsWith('\t'))
-			inNode = false;
-		else if (field == "Name: " + node)
-			inNode = true;
-		else if (inNode && field.startsWith("Active Port: "))
-			return field.section(' ', 2);
-	}
-
-	return QString();
 }
 
 // Wrap around at the band edges
@@ -106,8 +67,9 @@ MediatekRadio::MediatekRadio(QObject *parent)
 	: QObject(parent),
 	  settings(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/radio.conf",
 		   QSettings::IniFormat),
-	  paSource(findNode("sources", {"source.primary_input", "source.droid"})),
-	  paSink(findNode("sinks", {"sink.primary_output", "sink.droid"})),
+	  recorder(pulse),
+	  paSource(findNode(pulse.sourceNames(), {"source.primary_input", "source.droid"})),
+	  paSink(findNode(pulse.sinkNames(), {"sink.primary_output", "sink.droid"})),
 	  headsetAntenna(settings.value("headsetAntenna", true).toBool()),
 	  mono(settings.value("mono", false).toBool()),
 	  region(static_cast<Region>(settings.value("region", RegionWorld).toInt())),
@@ -119,8 +81,8 @@ MediatekRadio::MediatekRadio(QObject *parent)
 	while (presets.size() < kPresetCount)
 		presets << 0;
 
-	connect(&recorder, &QProcess::stateChanged, this, [this](QProcess::ProcessState state) {
-		if (state == QProcess::NotRunning)
+	connect(&recorder, &PulseRecorder::recordingChanged, this, [this]() {
+		if (!recorder.isRecording())
 			recordingTimer.stop();
 		emit recordingChanged();
 		emit recordingDurationChanged();
@@ -141,38 +103,38 @@ MediatekRadio::~MediatekRadio()
 // Wired headsets and headphones act as the antenna
 bool MediatekRadio::isHeadsetConnected()
 {
-	const QString port = activePort("sinks", paSink);
+	const QString port = pulse.sinkActivePort(paSink);
 
 	return port == "output-wired_headset" || port == "output-wired_headphone";
 }
 
 void MediatekRadio::routeAudio()
 {
-	savedSourcePort = activePort("sources", paSource);
-	savedSinkPort = activePort("sinks", paSink);
+	savedSourcePort = pulse.sourceActivePort(paSource);
+	savedSinkPort = pulse.sinkActivePort(paSink);
 
-	pactl({"set-source-port", paSource, "input-fm_tuner"});
+	pulse.setSourcePort(paSource, "input-fm_tuner");
 	if (speakerOutput)
-		pactl({"set-sink-port", paSink, "output-speaker"});
+		pulse.setSinkPort(paSink, "output-speaker");
 
 	// The multimedia role makes the loopback follow the system media volume
-	loopbackModule = pactl({"load-module", "module-loopback",
-				"source=" + paSource, "sink=" + paSink,
-				"sink_input_properties=media.role=multimedia"});
+	loopbackModule = pulse.loadModule("module-loopback",
+					  QString("source=%1 sink=%2 sink_input_properties=media.role=multimedia")
+						  .arg(paSource, paSink));
 }
 
 void MediatekRadio::restoreAudio()
 {
-	if (!loopbackModule.isEmpty())
-		pactl({"unload-module", loopbackModule});
-	loopbackModule.clear();
+	if (loopbackModule != PA_INVALID_INDEX)
+		pulse.unloadModule(loopbackModule);
+	loopbackModule = PA_INVALID_INDEX;
 
 	if (savedSourcePort.isEmpty() || savedSourcePort == "input-fm_tuner")
 		savedSourcePort = savedSinkPort == "output-wired_headset" ? "input-wired_headset" : "input-builtin_mic";
 
-	pactl({"set-source-port", paSource, savedSourcePort});
+	pulse.setSourcePort(paSource, savedSourcePort);
 	if (!savedSinkPort.isEmpty())
-		pactl({"set-sink-port", paSink, savedSinkPort});
+		pulse.setSinkPort(paSink, savedSinkPort);
 }
 
 // De-emphasis is only applied at power up
@@ -393,7 +355,7 @@ void MediatekRadio::setSpeakerOutput(bool speaker)
 
 	speakerOutput = speaker;
 	if (running)
-		pactl({"set-sink-port", paSink, speaker ? "output-speaker" : savedSinkPort});
+		pulse.setSinkPort(paSink, speaker ? QStringLiteral("output-speaker") : savedSinkPort);
 
 	emit speakerOutputChanged();
 }
@@ -565,7 +527,7 @@ QString MediatekRadio::getChipName() const
 
 bool MediatekRadio::isRecording() const
 {
-	return recorder.state() != QProcess::NotRunning;
+	return recorder.isRecording();
 }
 
 QString MediatekRadio::recordingsFolder() const
@@ -588,12 +550,8 @@ QString MediatekRadio::startRecording()
 		.arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss"))
 		.arg(frequency / 100.0, 0, 'f', 1);
 
-	recorder.start("/usr/bin/parecord", {"--device=" + paSource, "--file-format=wav",
-					    "--format=s16le", "--rate=48000", "--channels=2", file});
-	if (!recorder.waitForStarted()) {
-		qWarning() << "Failed to start parecord:" << recorder.errorString();
+	if (!recorder.start(paSource, file))
 		return QString();
-	}
 
 	recordingClock.start();
 	recordingTimer.start();
@@ -601,15 +559,10 @@ QString MediatekRadio::startRecording()
 	return file;
 }
 
-// parecord finalizes the WAV header on SIGTERM
+// The recorder finalizes the WAV header when it stops
 void MediatekRadio::stopRecording()
 {
-	if (!isRecording())
-		return;
-
-	recorder.terminate();
-	if (!recorder.waitForFinished(3000))
-		recorder.kill();
+	recorder.stop();
 }
 
 // Seconds since the current recording started, 0 when not recording

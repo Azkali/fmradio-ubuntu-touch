@@ -3,5 +3,8 @@
   "builder": "cmake",
   "framework": "ubuntu-touch-24.04-2.x",
   "skip_review": true,
-  "always_clean": true
+  "always_clean": true,
+  "dependencies_target": [
+    "libpulse-dev"
+  ]
 }

@@ -19,11 +19,12 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include <QProcess>
 #include <QSettings>
 #include <QString>
 #include <QTimer>
 #include <QVariantList>
+
+#include "PulseAudio.h"
 
 class MediatekRadio : public QObject {
 	Q_OBJECT
@@ -118,7 +119,8 @@ private:
 	QString recordingsFolder() const;
 
 	QSettings settings;
-	QProcess recorder;
+	PulseClient pulse;
+	PulseRecorder recorder;
 	QElapsedTimer recordingClock;
 	QTimer recordingTimer;
 	QTimer rdsTimer;
@@ -126,7 +128,7 @@ private:
 	QString paSink;
 	QString savedSourcePort;
 	QString savedSinkPort;
-	QString loopbackModule;
+	quint32 loopbackModule = PA_INVALID_INDEX;
 	QString stationName;
 	QString radioText;
 	QString chipName;
