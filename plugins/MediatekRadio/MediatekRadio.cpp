@@ -146,10 +146,6 @@ bool MediatekRadio::powerUp(int freq)
 		return false;
 	}
 
-	int chipId = 0;
-	if (COM_get_chip_id(fd, &chipId) == 0)
-		chipName = QString("MT%1").arg(chipId, 0, 16);
-
 	applyAntenna();
 	applyMono();
 	applyRds();
@@ -335,14 +331,6 @@ void MediatekRadio::setPreset(int slot, int freq)
 	emit presetsChanged();
 }
 
-void MediatekRadio::tunePreset(int slot)
-{
-	if (slot < 0 || slot >= kPresetCount || presets[slot].toInt() == 0)
-		return;
-
-	tune(presets[slot].toInt());
-}
-
 bool MediatekRadio::isSpeakerOutput() const
 {
 	return speakerOutput;
@@ -358,25 +346,6 @@ void MediatekRadio::setSpeakerOutput(bool speaker)
 		pulse.setSinkPort(paSink, speaker ? QStringLiteral("output-speaker") : savedSinkPort);
 
 	emit speakerOutputChanged();
-}
-
-bool MediatekRadio::isHeadsetAntenna() const
-{
-	return headsetAntenna;
-}
-
-// Only devices with an embedded antenna can use the short one
-void MediatekRadio::setHeadsetAntenna(bool headset)
-{
-	if (headsetAntenna == headset)
-		return;
-
-	headsetAntenna = headset;
-	settings.setValue("headsetAntenna", headset);
-	if (running)
-		applyAntenna();
-
-	emit headsetAntennaChanged();
 }
 
 void MediatekRadio::applyAntenna()
@@ -513,16 +482,6 @@ QString MediatekRadio::getStationName() const
 QString MediatekRadio::getRadioText() const
 {
 	return radioText;
-}
-
-QString MediatekRadio::getDevicePath() const
-{
-	return FM_DEV_NAME;
-}
-
-QString MediatekRadio::getChipName() const
-{
-	return chipName;
 }
 
 bool MediatekRadio::isRecording() const

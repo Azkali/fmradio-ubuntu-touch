@@ -32,7 +32,6 @@ class MediatekRadio : public QObject {
 	Q_PROPERTY(int frequency READ getFrequency NOTIFY frequencyChanged)
 	Q_PROPERTY(QVariantList presets READ getPresets NOTIFY presetsChanged)
 	Q_PROPERTY(bool speakerOutput READ isSpeakerOutput WRITE setSpeakerOutput NOTIFY speakerOutputChanged)
-	Q_PROPERTY(bool headsetAntenna READ isHeadsetAntenna WRITE setHeadsetAntenna NOTIFY headsetAntennaChanged)
 	Q_PROPERTY(bool mono READ isMono WRITE setMono NOTIFY monoChanged)
 	Q_PROPERTY(Region region READ getRegion WRITE setRegion NOTIFY regionChanged)
 	Q_PROPERTY(bool rdsEnabled READ isRdsEnabled WRITE setRdsEnabled NOTIFY rdsEnabledChanged)
@@ -40,8 +39,6 @@ class MediatekRadio : public QObject {
 	Q_PROPERTY(QString radioText READ getRadioText NOTIFY rdsChanged)
 	Q_PROPERTY(bool recording READ isRecording NOTIFY recordingChanged)
 	Q_PROPERTY(int recordingDuration READ getRecordingDuration NOTIFY recordingDurationChanged)
-	Q_PROPERTY(QString devicePath READ getDevicePath CONSTANT)
-	Q_PROPERTY(QString chipName READ getChipName NOTIFY runningChanged)
 
 public:
 	// Both use 87.5 - 108 MHz, they only differ in de-emphasis
@@ -65,7 +62,6 @@ public:
 	Q_INVOKABLE bool isRadioRunning() const;
 	Q_INVOKABLE void savePreset(int slot);
 	Q_INVOKABLE void clearPreset(int slot);
-	Q_INVOKABLE void tunePreset(int slot);
 	Q_INVOKABLE bool isSpeakerOutput() const;
 	Q_INVOKABLE void setSpeakerOutput(bool speaker);
 	Q_INVOKABLE bool isRecording() const;
@@ -74,8 +70,6 @@ public:
 	Q_INVOKABLE bool openRecordingsFolder();
 
 	QVariantList getPresets() const;
-	bool isHeadsetAntenna() const;
-	void setHeadsetAntenna(bool headset);
 	bool isMono() const;
 	void setMono(bool enabled);
 	Region getRegion() const;
@@ -84,8 +78,6 @@ public:
 	void setRdsEnabled(bool enabled);
 	QString getStationName() const;
 	QString getRadioText() const;
-	QString getDevicePath() const;
-	QString getChipName() const;
 	int getRecordingDuration() const;
 
 signals:
@@ -93,7 +85,6 @@ signals:
 	void frequencyChanged();
 	void presetsChanged();
 	void speakerOutputChanged();
-	void headsetAntennaChanged();
 	void monoChanged();
 	void regionChanged();
 	void rdsEnabledChanged();
@@ -131,7 +122,6 @@ private:
 	quint32 loopbackModule = PA_INVALID_INDEX;
 	QString stationName;
 	QString radioText;
-	QString chipName;
 	QVariantList presets;
 	bool running = false;
 	bool speakerOutput = false;
