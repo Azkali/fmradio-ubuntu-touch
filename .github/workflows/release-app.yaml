@@ -36,6 +36,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Tag v1.2.3 -> 1.2.3, v1.2.3-beta.1 -> 1.2.3~beta.1 (Debian/click ordering puts
+      # pre-releases before the final release). Manual runs on a branch get
+      # <last tag>+git<sha>.
+      - name: Compute version
+        id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            LAST_TAG="$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo v0.0.0)"
+            VERSION="${LAST_TAG#v}+git$(git rev-parse --short HEAD)"
+          fi
+          VERSION="${VERSION/-/\~}"
+          echo "Click version: ${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Install packages
         run: |
@@ -46,6 +64,7 @@ jobs:
       - name: Build click
         env:
           CLICKABLE_DOCKER_COMMAND: docker
+          CLICKABLE_BUILD_ARGS: -DAPP_VERSION=${{ steps.version.outputs.version }}
         run: |
           clickable build --arch arm64
 
