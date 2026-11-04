@@ -1,4 +1,10 @@
 {
     "policy_version": "$ENV{APPARMOR_POLICY}",
-    "template": "unconfined"
+    "policy_groups": [
+        "audio",
+        "microphone"
+    ],
+    "write_path": [
+        "/dev/fm"
+    ]
 }
