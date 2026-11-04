@@ -9,7 +9,7 @@
             "desktop":  "fmradio.desktop"
         }
     },
-    "version": "1.0.0",
+    "version": "@APP_VERSION@",
     "maintainer": "Azkali Manad <a.ffcc7@gmail.com>",
     "framework": "$ENV{CLICK_FRAMEWORK}"
 }
