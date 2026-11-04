@@ -152,7 +152,7 @@ Page {
                 SettingsRow {
                     iconName: "folder-symbolic"
                     title: i18n.tr("Storage Location")
-                    subtitle: "~/.local/share/fmradio.azkali/recordings"
+                    subtitle: "~/.local/share/fmradio.volla/recordings"
                     onClicked: MediatekRadio.openRecordingsFolder()
 
                     ProgressionSlot {

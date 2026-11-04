@@ -24,7 +24,7 @@ MainView {
     id: root
 
     objectName: 'mainView'
-    applicationName: 'fmradio.azkali'
+    applicationName: 'fmradio.volla'
 
     PageStack {
         id: mainStack

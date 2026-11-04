@@ -77,7 +77,7 @@ PulseClient::PulseClient()
 
 	pa_proplist *props = pa_proplist_new();
 	pa_proplist_sets(props, PA_PROP_APPLICATION_NAME, "FM Radio");
-	pa_proplist_sets(props, PA_PROP_APPLICATION_ID, "fmradio.azkali");
+	pa_proplist_sets(props, PA_PROP_APPLICATION_ID, "fmradio.volla");
 	ctx = pa_context_new_with_proplist(pa_threaded_mainloop_get_api(loop), "FM Radio", props);
 	pa_proplist_free(props);
 	if (!ctx)

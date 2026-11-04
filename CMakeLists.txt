@@ -20,7 +20,7 @@ execute_process(
 set(QT_IMPORTS_DIR "lib/${ARCH_TRIPLET}")
 
 set(PROJECT_NAME "fmradio")
-set(FULL_PROJECT_NAME "fmradio.azkali")
+set(FULL_PROJECT_NAME "fmradio.volla")
 
 # Click package version, overridden by CI from the git tag (-DAPP_VERSION=x.y.z)
 set(APP_VERSION "1.0.0" CACHE STRING "Click package version")
